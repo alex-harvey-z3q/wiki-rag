@@ -52,9 +52,9 @@ resource "aws_iam_role_policy" "events_run_task" {
     Version = "2012-10-17",
     Statement = [
       {
-        Effect    = "Allow",
-        Action    = ["ecs:RunTask"],
-        Resource  = [
+        Effect = "Allow",
+        Action = ["ecs:RunTask"],
+        Resource = [
           aws_ecs_task_definition.ingest.arn,
           aws_ecs_task_definition.indexer.arn
         ],

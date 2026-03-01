@@ -118,6 +118,11 @@ resource "aws_ecs_service" "api" {
   depends_on = [aws_lb_listener.http]
 }
 
+resource "aws_cloudwatch_log_group" "indexer" {
+  name              = "/ecs/${local.project}-indexer"
+  retention_in_days = 14
+}
+
 resource "aws_ecs_task_definition" "indexer" {
   family                   = "${local.project}-indexer"
   requires_compatibilities = ["FARGATE"]
@@ -129,7 +134,7 @@ resource "aws_ecs_task_definition" "indexer" {
 
   container_definitions = jsonencode([{
     name      = "indexer"
-    image     = aws_ecr_repository.indexer.repository_url
+    image     = "${aws_ecr_repository.indexer.repository_url}:latest"
     essential = true
     environment = [
       { name = "PARSED_BUCKET", value = aws_s3_bucket.parsed.bucket },
@@ -140,5 +145,13 @@ resource "aws_ecs_task_definition" "indexer" {
       { name = "DB_PASSWORD", valueFrom = "${data.aws_secretsmanager_secret.app.arn}:DB_PASSWORD::" },
       { name = "OPENAI_API_KEY", valueFrom = "${data.aws_secretsmanager_secret.app.arn}:OPENAI_API_KEY::" }
     ]
+    logConfiguration = {
+      logDriver = "awslogs",
+      options = {
+        awslogs-group         = aws_cloudwatch_log_group.indexer.name,
+        awslogs-region        = local.aws_region,
+        awslogs-stream-prefix = "ecs"
+      }
+    }
   }])
 }

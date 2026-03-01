@@ -21,8 +21,8 @@ resource "aws_iam_role_policy_attachment" "task_exec" {
 
 data "aws_iam_policy_document" "task_exec_secrets_doc" {
   statement {
-    sid     = "AllowReadAppSecrets"
-    effect  = "Allow"
+    sid    = "AllowReadAppSecrets"
+    effect = "Allow"
     actions = [
       "secretsmanager:GetSecretValue",
       "secretsmanager:DescribeSecret",
